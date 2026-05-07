@@ -6,13 +6,6 @@
 docs/sources/
 docs/superpowers/
 
-# xreal_head_control is a separate git project; keep it out of
-# this repo until it is converted to a proper git submodule.
-# (It currently has uncommitted local changes — push those first,
-#  then convert. See README.md > "Converting xreal_head_control
-#  to a submodule".)
-xreal_head_control/
-
 # -------- Editor / IDE --------
 .vscode/browse.vc.db
 .vscode/browse.vc.db-*

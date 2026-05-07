@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Xreal IMU</title>
+<style>
+* { margin: 0; box-sizing: border-box; }
+body { background: #111; color: #eee; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+#status { position: fixed; top: 12px; font-size: 14px; color: #666; }
+#status.on { color: #4f4; }
+.vals { display: flex; gap: 40px; margin-bottom: 40px; font-size: 14px; }
+.val { text-align: center; }
+.val span { display: block; font-size: 48px; font-weight: bold; }
+.val .label { color: #888; margin-top: 4px; }
+#scene { position: relative; width: 300px; height: 300px; perspective: 600px; }
+#cube-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; perspective: 600px; }
+#cube { width: 200px; height: 200px; position: relative; transform-style: preserve-3d; transition: transform 0.05s linear; }
+#cube div { position: absolute; width: 200px; height: 200px; border: 2px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; }
+#axes { position: absolute; inset: 0; pointer-events: none; }
+#axes svg { width: 100%; height: 100%; }
+.front  { background: rgba(66,133,244,0.6); transform: translateZ(100px); }
+.back   { background: rgba(234,67,53,0.4); transform: rotateY(180deg) translateZ(100px); }
+.left   { background: rgba(251,188,4,0.4); transform: rotateY(-90deg) translateZ(100px); }
+.right  { background: rgba(52,168,83,0.4); transform: rotateY(90deg) translateZ(100px); }
+.top    { background: rgba(255,255,255,0.15); transform: rotateX(90deg) translateZ(100px); }
+.bottom { background: rgba(255,255,255,0.08); transform: rotateX(-90deg) translateZ(100px); }
+#rate { position: fixed; bottom: 12px; font-size: 13px; color: #555; }
+.btn { position: fixed; background: #333; color: #eee; border: 1px solid #555; padding: 6px 16px; cursor: pointer; font-family: monospace; font-size: 13px; border-radius: 4px; }
+.btn:hover { background: #444; }
+#zero { top: 40px; left: 50%; transform: translateX(-60%); }
+#recal { top: 40px; left: 50%; transform: translateX(60%); }
+#cal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+#cal-overlay .msg { font-size: 20px; margin-bottom: 16px; }
+#cal-overlay .bar-bg { width: 300px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; }
+#cal-overlay .bar-fg { height: 100%; background: #4f4; transition: width 0.1s; }
+#cal-overlay .hint { margin-top: 12px; color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+<div id="status">connecting...</div>
+<div id="cal-overlay"><div class="msg">Calibrating — keep glasses still</div><div class="bar-bg"><div class="bar-fg" id="cal-bar"></div></div><div class="hint">500 samples (~0.5s)</div></div>
+<button id="zero" class="btn">Zero View (T)</button>
+<button id="recal" class="btn">Recalibrate (R)</button>
+<div class="vals">
+  <div class="val"><span id="p" style="color:#f66">0</span><div class="label" style="color:#f44">PITCH (X)</div></div>
+  <div class="val"><span id="y" style="color:#6f6">0</span><div class="label" style="color:#4f4">YAW (Y)</div></div>
+  <div class="val"><span id="r" style="color:#6ff">0</span><div class="label" style="color:#4ff">ROLL (Z)</div></div>
+</div>
+<div id="scene">
+  <div id="axes">
+    <svg viewBox="0 0 300 300">
+      <!-- Pitch axis (X) — red, horizontal -->
+      <line x1="20" y1="150" x2="130" y2="150" stroke="#f44" stroke-width="2.5" />
+      <polygon points="130,145 140,150 130,155" fill="#f44" />
+      <text x="12" y="154" fill="#f44" font-size="13" font-family="monospace" font-weight="bold">Pitch (X)</text>
+      <!-- Yaw axis (Y) — green, vertical -->
+      <line x1="150" y1="280" x2="150" y2="170" stroke="#4f4" stroke-width="2.5" />
+      <polygon points="145,170 150,160 155,170" fill="#4f4" />
+      <text x="158" y="278" fill="#4f4" font-size="13" font-family="monospace" font-weight="bold">Yaw (Y)</text>
+      <!-- Roll axis (Z) — cyan, diagonal into screen -->
+      <line x1="150" y1="150" x2="210" y2="210" stroke="#4ff" stroke-width="2.5" stroke-dasharray="6,4" />
+      <polygon points="206,215 215,215 210,206" fill="#4ff" />
+      <text x="214" y="224" fill="#4ff" font-size="13" font-family="monospace" font-weight="bold">Roll (Z)</text>
+    </svg>
+  </div>
+  <div id="cube-wrap">
+    <div id="cube">
+      <div class="front">FRONT</div>
+      <div class="back">BACK</div>
+      <div class="left">LEFT</div>
+      <div class="right">RIGHT</div>
+      <div class="top">TOP</div>
+      <div class="bottom">BTM</div>
+    </div>
+  </div>
+</div>
+<div id="rate"></div>
+<script>
+let ws, offset = {pitch:0, yaw:0, roll:0};
+const calOverlay = document.getElementById('cal-overlay');
+const calBar = document.getElementById('cal-bar');
+
+function send(cmd) { if (ws && ws.readyState === 1) ws.send(JSON.stringify({cmd})); }
+
+function connect() {
+  ws = new WebSocket('ws://localhost:8765');
+  ws.onopen = () => { document.getElementById('status').textContent = 'connected'; document.getElementById('status').className = 'on'; };
+  ws.onclose = () => { document.getElementById('status').textContent = 'disconnected'; document.getElementById('status').className = ''; setTimeout(connect, 1000); };
+  ws.onmessage = (e) => {
+    const d = JSON.parse(e.data);
+    // Show/hide calibration overlay
+    if (d.calibrating) { calOverlay.style.display = 'flex'; calBar.style.width = d.cal_progress + '%'; return; }
+    calOverlay.style.display = 'none';
+
+    const p = d.pitch - offset.pitch, y = d.yaw - offset.yaw, r = d.roll - offset.roll;
+    document.getElementById('p').textContent = (-p).toFixed(1);
+    document.getElementById('y').textContent = (-y).toFixed(1);
+    document.getElementById('r').textContent = r.toFixed(1);
+    document.getElementById('cube').style.transform = `rotateX(${p}deg) rotateY(${-y}deg) rotateZ(${-r}deg)`;
+    document.getElementById('rate').textContent = d.rate + ' Hz';
+  };
+}
+
+document.getElementById('zero').onclick = () => { send('zero'); offset = {pitch:0, yaw:0, roll:0}; };
+document.getElementById('recal').onclick = () => { send('recalibrate'); offset = {pitch:0, yaw:0, roll:0}; };
+document.addEventListener('keydown', (e) => {
+  if (e.key === 't' || e.key === 'T') document.getElementById('zero').click();
+  if (e.key === 'r' || e.key === 'R') document.getElementById('recal').click();
+});
+connect();
+</script>
+</body>
+</html>

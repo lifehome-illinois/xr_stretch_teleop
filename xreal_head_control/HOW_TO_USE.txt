@@ -1,0 +1,193 @@
+HOW TO USE - Stretch GazeBot
+============================
+Control your Stretch 3 robot's head by moving your own head
+while wearing Xreal One Pro glasses.
+
+
+WHAT YOU NEED
+-------------
+- Xreal One Pro glasses
+- USB-C cable
+- Hello Robot Stretch 3 (on the same network as your PC)
+- Python 3 on your PC
+
+
+STEP 1: PLUG IN THE GLASSES
+----------------------------
+1. Connect Xreal One Pro to your PC with a USB-C cable
+2. Open a terminal and type:
+      ping 169.254.2.1
+3. You should see replies. If not:
+   - Go to glasses settings > developer menu > enable ethernet
+   - Try a different USB-C port
+
+
+STEP 2: TEST THE GLASSES (optional but recommended)
+----------------------------------------------------
+1. Open a terminal on your PC
+2. Go to the project folder:
+      cd ~/lab/life_home/xreal_head_control
+3. Run the visualizer:
+      python3 imu_server.py
+4. Open imu_viz.html in your browser (double click the file)
+5. You should see a 3D cube that moves when you move your head
+6. Press Ctrl+C in the terminal to stop when done
+
+
+STEP 3: START THE ROBOT
+------------------------
+1. Open a terminal and SSH into the Stretch robot:
+      ssh hello-robot@172.22.243.8
+      password: <ask lab admin / see lab credentials>
+2. Deactivate conda (important!):
+      conda deactivate
+3. Start the robot driver:
+      ros2 launch stretch_core stretch_driver.launch.py
+4. Open a SECOND SSH terminal to the robot:
+      ssh hello-robot@172.22.243.8
+      conda deactivate
+5. Find the correct action server name:
+      ros2 action list
+6. Look for something like /stretch_controller/follow_joint_trajectory
+7. If the name is different, edit the relay script:
+      nano ~/het_ros2_ws/stretch_relay.py
+      Change line 33 to match the action server name you found
+8. Start the relay:
+      python3 ~/het_ros2_ws/stretch_relay.py
+9. Wait until you see:
+      "Waiting for connection on port 9090..."
+
+
+STEP 4: START HEAD CONTROL
+---------------------------
+1. On your PC, open a new terminal:
+      cd ~/lab/life_home/xreal_head_control
+      python3 stretch_head_control.py
+2. Keep the glasses STILL on a flat surface for 0.5 seconds (calibration)
+3. Put the glasses on your head
+4. Press T to set your current head position as "center"
+5. Move your head:
+   - Look LEFT/RIGHT  -->  robot head pans left/right
+   - Look UP/DOWN     -->  robot head tilts up/down
+
+
+KEYBOARD CONTROLS
+-----------------
+T  =  zero view (reset center position)
+R  =  recalibrate (keep glasses still when you press this)
+L  =  lock/unlock (pause sending commands to robot)
+Q  =  quit
+
+
+TROUBLESHOOTING
+---------------
+Problem: "Connection refused" on PC
+Fix:     Make sure stretch_relay.py is running on the robot first
+
+Problem: "Trajectory server not found" on robot
+Fix:     Make sure stretch_driver.launch.py is running in another terminal
+         Run "ros2 action list" and update the action server name in stretch_relay.py
+
+Problem: Can't ping 169.254.2.1
+Fix:     Enable ethernet in glasses developer menu, try different USB-C port
+
+Problem: Python errors about rclpy on the robot
+Fix:     Run "conda deactivate" before running any python3 commands
+
+Problem: Head moves wrong direction
+Fix:     Edit stretch_head_control.py and flip the sign on line 108 or 109
+
+Problem: Too sensitive or not sensitive enough
+Fix:     Edit stretch_head_control.py:
+         HEAD_PAN_SCALE = 0.025   (bigger = more sensitive left/right)
+         HEAD_TILT_SCALE = 0.015  (bigger = more sensitive up/down)
+
+
+FILE LIST
+---------
+stretch_head_control.py  = runs on YOUR PC, reads glasses and sends commands
+stretch_relay.py         = runs on THE ROBOT, receives commands and moves head
+imu_server.py            = test tool, streams head data to browser
+imu_viz.html             = test tool, shows 3D cube in browser
+src/imu_reader_fixed.py  = reads raw IMU data from glasses over TCP
+src/head_tracker.py      = converts raw IMU into pitch/yaw/roll
+src/imu_data.py          = data format for IMU readings
+src/imu_reader.py        = original reader (doesn't work with our glasses)
+start.sh                 = launcher script (checks glasses before starting)
+
+
+
+
+----------------On_PC----------------------------
+sshfs hello-robot@172.22.243.8:/home/hello-robot/het_ros2_ws  ~/lab/life_home/shared_folder_btw_stretch3_mypc/het_ros2_ws
+
+#for IMU Visualization (xreal-head-control folder)
+python imu_server.py                                       
+xdg-open imu_viz.html  
+
+
+#dual camera view file
+google-chrome --kiosk file:///home/het/lab/life_home/shared_folder_btw_stretch3_mypc/het_ros2_ws/dual_camera_view.html
+
+
+# to run xreal-controlled-stretch
+python3 ~/lab/life_home/xreal_head_control/stretch_head_control.py
+
+
+------------------Inside Robot---
+ssh hello-robot@172.22.243.8 
+<password — ask lab admin>
+
+stretch_free_robot_process.py
+stretch_robot_home.py
+
+for dual camera view 
+
+conda deactivate            
+  ros2 launch ~/het_ros2_ws/stretch_dual_camera.launch.py
+
+---------------- 
+ssh hello-robot@172.22.243.8 
+<password — ask lab admin>
+
+stretch_free_robot_process.py
+stretch_robot_home.py
+
+for dual camera view 
+
+conda deactivate            
+  ros2 launch ~/het_ros2_ws/stretch_dual_camera.launch.py
+
+
+conda deactivate
+ros2 launch stretch_core stretch_driver.launch.py mode:=navigation
+
+conda deactivate
+ros2 launch stretch_core d435i_high_resolution.launch.py
+
+conda deactivate
+ros2 launch stretch_core d405_basic.launch.py
+
+conda deactivate
+ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:="/dev/video6" -r image_raw:=/arducam/image_raw
+
+conda deactivate
+ros2 run web_video_server web_video_server
+
+to run the xreal-controlled-stretch 
+conda deactivate && python3 ~/het_ros2_ws/stretch_relay.py
+
+----------------------------
+     Key      │           Action            │
+  ├──────────────┼─────────────────────────────┤
+  │ M            │ Toggle LOOK/DRIVE mode      │
+  ├──────────────┼─────────────────────────────┤
+  │ Space (hold) │ Move base (DRIVE mode only) │
+  ├──────────────┼─────────────────────────────┤
+  │ T            │ Zero view (both modes)      │
+  ├──────────────┼─────────────────────────────┤
+  │ R            │ Recalibrate                 │
+  ├──────────────┼─────────────────────────────┤
+  │ L            │ Lock tracking               │
+  ├──────────────┼─────────────────────────────┤
+  │ Q            │ Quit       (base) hello-ro
