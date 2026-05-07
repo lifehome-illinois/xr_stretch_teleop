@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/het/ros2_ws/install/my_robot_interfaces/include/**",
+        "/home/het/ros2_ws/install/action_interfaces/include/**",
+        "/home/het/ros2_ws/calhacks12/booster_robotics_sdk_ros2/booster_ros2_interface/install/booster_interface/include/**",
+        "/home/het/mobile_robotics/install/openslam_gmapping/include/**",
+        "/home/het/ros2_ws_uiuc/install/gazebo_ros2_control/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/het/lab/life_home/XRLinuxDriver/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ros2",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++17"
+    }
+  ],
+  "version": 4
+}

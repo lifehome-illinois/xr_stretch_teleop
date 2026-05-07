@@ -1,0 +1,38 @@
+Week,Task,Hours,Status,Milestone
+1,Configure Stretch 3 with ROS2 stretch_body stretch_ai in LIFE Home,6,Not Started,Stretch controllable via Quest 3 hand tracking (OPEN TEACH baseline)
+1,Set up Unity development environment with Meta XR SDK for Quest 3,6,Not Started,Stretch controllable via Quest 3 hand tracking (OPEN TEACH baseline)
+1,Get OPEN TEACH baseline running (Quest 3 → Stretch hand-tracking mode),5,Not Started,Stretch controllable via Quest 3 hand tracking (OPEN TEACH baseline)
+1,"Literature deep-dive: MIHRaGe, Learned Latent Actions, RaycastGrasp papers",3,Not Started,Stretch controllable via Quest 3 hand tracking (OPEN TEACH baseline)
+2,Build Unity app reading Quest 3 head pose (6DoF) via OpenXR at 90Hz,4,Not Started,User sees through robot's eyes and controls camera view with head movements
+2,Implement head-gaze ray casting into robot camera view,4,Not Started,User sees through robot's eyes and controls camera view with head movements
+2,Stream Stretch head camera into Quest 3 via WebRTC,6,Not Started,User sees through robot's eyes and controls camera view with head movements
+2,"Map head rotation to robot head pan/tilt — ""look through robot's eyes""",4,Not Started,User sees through robot's eyes and controls camera view with head movements
+2,"Tune sensitivity, dead zones, smoothing filters for comfort",2,Not Started,User sees through robot's eyes and controls camera view with head movements
+3,"Connect SNP switch to Xbox Adaptive Controller, pair via Bluetooth to Quest 3",3,Not Started,Full hands-free input chain working — head-gaze + sip/puff across all modes
+3,Map sip/puff signals to Unity app actions (soft/hard sip/puff differentiation),5,Not Started,Full hands-free input chain working — head-gaze + sip/puff across all modes
+3,"Implement 4 control modes: Look, Navigate, Manipulate, Menu",8,Not Started,Full hands-free input chain working — head-gaze + sip/puff across all modes
+4,"Integrate Nav2 — user looks at target location, sips to set navigation goal",6,Not Started,"User looks at a point in the LIFE Home, sips, and robot autonomously navigates there"
+4,Convert head-gaze ray + depth image into 3D world coordinate for Nav2,6,Not Started,"User looks at a point in the LIFE Home, sips, and robot autonomously navigates there"
+4,Show navigation path preview in MR view before user confirms,4,Not Started,"User looks at a point in the LIFE Home, sips, and robot autonomously navigates there"
+4,Test navigation throughout LIFE Home rooms — tune for indoor environment,4,Not Started,"User looks at a point in the LIFE Home, sips, and robot autonomously navigates there"
+5,Integrate object detection pipeline (stretch_ai YOLO/SAM),4,Not Started,"User looks at an object, sips twice, robot picks it up and brings it to the wheelchair"
+5,Head-gaze ray highlights detected objects with visual feedback in MR,4,Not Started,"User looks at an object, sips twice, robot picks it up and brings it to the wheelchair"
+5,Sip to confirm → trigger autonomous grasp planning (stretch_ai / FUNMAP),6,Not Started,"User looks at an object, sips twice, robot picks it up and brings it to the wheelchair"
+5,Show grasp preview in MR → sip to execute,3,Not Started,"User looks at an object, sips twice, robot picks it up and brings it to the wheelchair"
+5,"Implement ""bring to me"" — robot grasps, then navigates back to user",3,Not Started,"User looks at an object, sips twice, robot picks it up and brings it to the wheelchair"
+6,"Build preset task library: ""Fetch object"", ""Open door"", ""Clear path"", ""Get water""",8,Not Started,"Complete system with preset ADL tasks, audio feedback, and reliable safety stops"
+6,Implement head-gaze menu for selecting preset tasks,3,Not Started,"Complete system with preset ADL tasks, audio feedback, and reliable safety stops"
+6,"Add audio feedback via earbuds: confirmation tones, error alerts, task status",4,Not Started,"Complete system with preset ADL tasks, audio feedback, and reliable safety stops"
+6,Refine emergency stop — hard puff instantly halts all robot motion,2,Not Started,"Complete system with preset ADL tasks, audio feedback, and reliable safety stops"
+6,End-to-end integration testing with all components,3,Not Started,"Complete system with preset ADL tasks, audio feedback, and reliable safety stops"
+7,"Conduct structured evaluation: 5 tasks x 3 trials, record success/time/inputs",8,Not Started,Quantitative evaluation data demonstrating system viability
+7,Baseline comparison with stretch_web_teleop (keyboard/mouse control),4,Not Started,Quantitative evaluation data demonstrating system viability
+7,Administer NASA-TLX and SUS questionnaires,2,Not Started,Quantitative evaluation data demonstrating system viability
+7,"Analyze data: compute success rates, completion times, workload scores",4,Not Started,Quantitative evaluation data demonstrating system viability
+7,Identify and fix critical usability issues discovered during evaluation,2,Not Started,Quantitative evaluation data demonstrating system viability
+8,Record professional demo video (2-3 min) showing full workflow in LIFE Home,4,Not Started,"Demo video, technical report, public GitHub repository, conference paper outline"
+8,"Write technical report with architecture, results, and future work",6,Not Started,"Demo video, technical report, public GitHub repository, conference paper outline"
+8,"Clean and document codebase, push to GitHub with comprehensive README",4,Not Started,"Demo video, technical report, public GitHub repository, conference paper outline"
+8,Prepare presentation for LIFE Home team / lab meeting,3,Not Started,"Demo video, technical report, public GitHub repository, conference paper outline"
+8,Draft conference paper outline targeting ASSETS 2026 or HRI 2027,3,Not Started,"Demo video, technical report, public GitHub repository, conference paper outline"
+3,"Build MR heads-up display showing current mode, battery, connection status",4,Not Started,Full hands-free input chain working — head-gaze + sip/puff across all modes

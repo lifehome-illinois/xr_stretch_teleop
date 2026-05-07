@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stretch 3 - Dual Camera View</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; color: #fff; font-family: monospace; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        .container { display: flex; flex: 1; gap: 4px; padding: 4px; }
+        .camera { flex: 1; display: flex; flex-direction: column; background: #222; border-radius: 4px; overflow: hidden; }
+        .camera label { text-align: center; padding: 6px; font-size: 14px; background: #333; font-weight: bold; }
+        .camera img { width: 100%; flex: 1; object-fit: contain; background: #000; }
+        #head-cam { transform: rotate(90deg); }
+        .status { text-align: center; padding: 4px; font-size: 12px; color: #888; }
+        .camera img.error { display: none; }
+        .camera .fallback { display: none; flex: 1; align-items: center; justify-content: center; color: #666; font-size: 16px; }
+        .camera img.error + .fallback { display: flex; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="camera">
+            <label>Head Camera (D435)</label>
+            <img id="head-cam" src="http://172.22.243.8:8080/stream?topic=/camera/color/image_raw&type=mjpeg&quality=80" alt="Head Camera" />
+            <div class="fallback">No stream - check web_video_server</div>
+        </div>
+        <div class="camera">
+            <label>Gripper Camera (D405)</label>
+            <img id="gripper-cam" src="http://172.22.243.8:8080/stream?topic=/gripper_camera/color/image_rect_raw&type=mjpeg&quality=80" alt="Gripper Camera" />
+            <div class="fallback">No stream - check web_video_server</div>
+        </div>
+    </div>
+    <div class="status">Stretch 3 (172.22.243.8) | web_video_server:8080 | Press F11 for fullscreen</div>
+    <script>
+        document.querySelectorAll('.camera img').forEach(img => {
+            img.onerror = () => {
+                img.classList.add('error');
+                setTimeout(() => {
+                    img.classList.remove('error');
+                    img.src = img.src.split('&_t=')[0] + '&_t=' + Date.now();
+                }, 3000);
+            };
+        });
+    </script>
+</body>
+</html>
