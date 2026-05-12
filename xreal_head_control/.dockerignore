@@ -1,0 +1,12 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+.vscode/
+knowledge_transfer/
+*.md
+LICENSE
+HOW_TO_USE.txt
+start.sh
