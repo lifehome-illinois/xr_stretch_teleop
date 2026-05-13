@@ -1,5 +1,5 @@
 # LIFE Home — XREAL-Controlled Stretch 3
-## A Deep-Dive Reference for Presentation Preparation
+## A Deep-Dive Reference for this Project
 
 > A complete, NotebookLM-ready reference for the `life_home` project: a
 > head-tracking teleoperation system that lets a person wearing **XREAL One Pro**
